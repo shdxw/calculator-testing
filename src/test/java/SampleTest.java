@@ -43,6 +43,7 @@ public class SampleTest {
         driver = new AndroidDriver<>(remoteUrl, desiredCapabilities);
         mainPage = new MainPage(driver);
     }
+
     @Before
     public void reset() {
         mainPage.keyReset.click();
@@ -53,21 +54,21 @@ public class SampleTest {
     public void intsPlusTest() {
         List<Integer> integers = Arrays.asList(1, 20, 300, 4000, 5000);
         for (int i = 0; i < integers.size(); i++) {
-                mainPage.inputFieldLeft.setValue(integers.get(i).toString());
-                mainPage.inputFieldRight.setValue(integers.get(integers.size() - 1 - i).toString());
-                mainPage.keyPlus.click();
-                String v = mainPage.result.getText();
-                String[] res = v.split(" ");
-                v = res[res.length - 1];
-                String expected = String.format("%d,00", integers.get(i) + integers.get(integers.size() - 1 - i));
-                Assert.assertEquals(expected, v);
-                reset();
+            mainPage.inputFieldLeft.setValue(integers.get(i).toString());
+            mainPage.inputFieldRight.setValue(integers.get(integers.size() - 1 - i).toString());
+            mainPage.keyPlus.click();
+            String v = mainPage.result.getText();
+            String[] res = v.split(" ");
+            v = res[res.length - 1];
+            String expected = String.format("%d,00", integers.get(i) + integers.get(integers.size() - 1 - i));
+            Assert.assertEquals(expected, v);
+            reset();
         }
     }
 
     /*
-    *выкидывает ошибку при отрицательном результате
-    * */
+     *выкидывает ошибку при отрицательном результате
+     * */
     @Ignore
     @Test
     public void intsMinusTest() {
@@ -192,6 +193,23 @@ public class SampleTest {
             float one = floats.get(i);
             float two = floats.get(floats.size() - 1 - i);
             String expected = String.format("%.2f", one / two);
+            Assert.assertEquals(expected, v);
+            reset();
+        }
+    }
+
+    @Test //канает только семь знаков перед запятой
+    public void maxSizeTest() {
+        float one = 1f;
+        float two = 1f;
+
+        while (String.valueOf(two).length() < 10) {
+            two *= 10f;
+            mainPage.inputFieldLeft.setValue(String.valueOf(one));
+            mainPage.inputFieldRight.setValue(String.valueOf(two));
+            mainPage.keyMul.click();
+            String v = mainPage.inputFieldRight.getText().replace('.',',');
+            String expected = String.format("%.1f", two);
             Assert.assertEquals(expected, v);
             reset();
         }

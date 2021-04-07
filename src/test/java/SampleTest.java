@@ -1,9 +1,8 @@
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
-import jdk.jfr.Description;
-import junit.framework.TestCase;
 import org.junit.*;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import pages.MainPage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,15 +12,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import pages.MainPage;
-
 public class SampleTest {
 
     private static AndroidDriver<AndroidElement> driver;
     private static MainPage mainPage;
 
+    /**
+     * иницилизация драйвера, чтение файла test.properties
+     */
     @BeforeClass
     public static void setUp() throws MalformedURLException {
         Properties cfg = new Properties();
@@ -44,12 +42,17 @@ public class SampleTest {
         mainPage = new MainPage(driver);
     }
 
+    /**
+     * сброс полей в приложении перед каждым тестом
+     */
     @Before
     public void reset() {
         mainPage.keyReset.click();
     }
 
-    @Ignore
+    /**
+     * сложение целых чисел
+     * */
     @Test
     public void intsPlusTest() {
         List<Integer> integers = Arrays.asList(1, 20, 300, 4000, 5000);
@@ -68,8 +71,8 @@ public class SampleTest {
 
     /*
      *выкидывает ошибку при отрицательном результате
+     * кладывает и умножает на 2 если значение из поля 1 <= значению из поля 2
      * */
-    @Ignore
     @Test
     public void intsMinusTest() {
         List<Integer> integers = Arrays.asList(1, 20, 300, 4000, 5000);
@@ -86,7 +89,9 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    /**
+     * тест умножения простых чисел
+     * */
     @Test
     public void intsMulTest() {
         List<Integer> integers = Arrays.asList(1, 20, 300, 4000, 5000);
@@ -103,7 +108,7 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    //тест деления простых чисел
     @Test
     public void intsDivTest() {
         List<Integer> integers = Arrays.asList(1, 20, 300, 4000, 5000);
@@ -122,7 +127,7 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    //сумма float чисел
     @Test
     public void floatsSumTest() {
         List<Float> floats = Arrays.asList(0.1f, 0.02f, 0.3f, 1.4f, 2.5f);
@@ -141,7 +146,7 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    //разность float чисел
     @Test
     public void floatsMinusTest() {
         List<Float> floats = Arrays.asList(0.1f, 0.02f, 0.3f, 1.4f, 2.5f);
@@ -160,7 +165,7 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    //умножение float чисел
     @Test
     public void floatsMulTest() {
         List<Float> floats = Arrays.asList(0.1f, 0.02f, 0.3f, 1.4f, 2.5f);
@@ -179,7 +184,7 @@ public class SampleTest {
         }
     }
 
-    @Ignore
+    //деление float чисел
     @Test
     public void floatsDivTest() {
         List<Float> floats = Arrays.asList(0.1f, 0.02f, 0.3f, 1.4f, 2.5f);
@@ -198,7 +203,8 @@ public class SampleTest {
         }
     }
 
-    @Test //канает только семь знаков перед запятой
+    //проверка изменения значения в поле после операции
+    @Test
     public void maxSizeTest() {
         float one = 1f;
         float two = 1f;
@@ -208,9 +214,43 @@ public class SampleTest {
             mainPage.inputFieldLeft.setValue(String.valueOf(one));
             mainPage.inputFieldRight.setValue(String.valueOf(two));
             mainPage.keyMul.click();
-            String v = mainPage.inputFieldRight.getText().replace('.',',');
+            String v = mainPage.inputFieldRight.getText().replace('.', ',');
             String expected = String.format("%.1f", two);
             Assert.assertEquals(expected, v);
+            reset();
+        }
+    }
+
+    //проверка деления на 0
+    @Test
+    public void whenDivByZeroTest() {
+        List<Float> floats = Arrays.asList(1000f, 40.02f, 0.3f, 1.4f, 2.5f);
+        for (Float a : floats) {
+            mainPage.inputFieldLeft.setValue(String.valueOf(a));
+            mainPage.inputFieldRight.setValue(String.valueOf(0));
+            mainPage.keyDiv.click();
+            String v = mainPage.result.getText();
+            String[] res = v.split(" ");
+            v = res[res.length - 1];
+            Assert.assertEquals("Infinity", v);
+            reset();
+        }
+
+    }
+
+    /**
+     * Проверка нажатия всех кнопок операций без введенных значений
+     */
+
+    @Test
+    public void whenNoOneValue() {
+        List<AndroidElement> buttons = Arrays.asList(mainPage.keyDiv, mainPage.keyMinus,
+                mainPage.keyMul, mainPage.keyPlus);
+        String expect = "Please, fill the input fields correctly";
+        for (AndroidElement button : buttons) {
+            button.click();
+            String v = mainPage.result.getText();
+            Assert.assertEquals(expect, v);
             reset();
         }
     }

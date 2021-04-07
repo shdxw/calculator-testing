@@ -206,16 +206,18 @@ public class SampleTest {
     //проверка изменения значения в поле после операции
     @Test
     public void maxSizeTest() {
-        float one = 1f;
-        float two = 1f;
+        int one = 1;
+        long two = 1;
 
-        while (String.valueOf(two).length() < 10) {
-            two *= 10f;
+        while (String.valueOf(two).length() < 15) {
+            two *= 10;
             mainPage.inputFieldLeft.setValue(String.valueOf(one));
             mainPage.inputFieldRight.setValue(String.valueOf(two));
             mainPage.keyMul.click();
-            String v = mainPage.inputFieldRight.getText().replace('.', ',');
-            String expected = String.format("%.1f", two);
+            String v = mainPage.result.getText();
+            String[] res = v.split(" ");
+            v = res[res.length - 1];
+            String expected = (one * two) + ",00";
             Assert.assertEquals(expected, v);
             reset();
         }
